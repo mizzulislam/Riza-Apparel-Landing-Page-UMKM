@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /customOrders/{orderId} {
+      // Izinkan pengunjung membuat pesanan konsultasi custom jersey
+      allow create: if request.resource.data.customerName is string &&
+                       request.resource.data.whatsapp is string &&
+                       request.resource.data.jerseyType is string;
+      // Membaca atau mengupdate hanya jika terotentikasi
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}

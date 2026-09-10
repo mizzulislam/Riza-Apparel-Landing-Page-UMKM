@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "CustomOrder": {
+      "title": "CustomOrder",
+      "description": "Permintaan pesanan custom jersey dan konsultasi desain Riza Apparel",
+      "type": "object",
+      "properties": {
+        "customerName": {
+          "type": "string",
+          "description": "Nama pemesan"
+        },
+        "whatsapp": {
+          "type": "string",
+          "description": "Nomor WhatsApp aktif"
+        },
+        "teamName": {
+          "type": "string",
+          "description": "Nama tim atau komunitas"
+        },
+        "jerseyType": {
+          "type": "string",
+          "description": "Kategori produk (Sepakbola, Voli, Futsal, Komunitas, dll)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Estimasi jumlah pesanan (pcs)"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Catatan khusus atau preferensi motif adat (Zawo dll)"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["new", "contacted", "in_design", "completed"],
+          "description": "Status tindak lanjut pesanan"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Waktu pembuatan pesanan"
+        }
+      },
+      "required": ["customerName", "whatsapp", "jerseyType", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/customOrders/{orderId}": {
+      "schema": "CustomOrder",
+      "description": "Koleksi pemesanan jersey dan konsultasi desain dari pelanggan"
+    }
+  }
+}
