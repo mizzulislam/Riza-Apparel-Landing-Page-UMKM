@@ -3,8 +3,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RotateCw, Sparkles, Box, RefreshCw } from 'lucide-react';
 import { DesignConfig, DesignState } from '../types';
-import { createRoot } from 'react-dom/client';
-import { JerseySVG2D } from './JerseySVG2D';
+import { createJerseyAtlasTexture } from '../lib/atlas-renderer';
 
 interface JerseyMockup3DProps {
   config?: DesignConfig | DesignState;
@@ -75,40 +74,41 @@ export const JerseyMockup3D: React.FC<JerseyMockup3DProps> = ({
     }
     container.appendChild(renderer.domElement);
 
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    // 3-Point PBR Fabric Lighting (Key, Fill, Rim)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
     scene.add(ambientLight);
 
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1.8);
-    mainLight.position.set(2, 3, 3);
-    mainLight.castShadow = true;
-    scene.add(mainLight);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    keyLight.position.set(2, 3, 3);
+    keyLight.castShadow = true;
+    scene.add(keyLight);
 
     const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
     fillLight.position.set(-2, 1, -2);
     scene.add(fillLight);
 
-    const topLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    topLight.position.set(0, 4, 0);
-    scene.add(topLight);
+    const rimLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    rimLight.position.set(0, 3, -3);
+    scene.add(rimLight);
 
     // Group for model rotation
     const modelGroup = new THREE.Group();
     scene.add(modelGroup);
     modelGroupRef.current = modelGroup;
 
-    // Floor Shadow Plane
-    const shadowGeo = new THREE.PlaneGeometry(2.2, 2.2);
-    const shadowMat = new THREE.ShadowMaterial({ opacity: 0.25 });
+    // Soft Contact Shadow Plane
+    const shadowGeo = new THREE.PlaneGeometry(2.0, 2.0);
+    const shadowMat = new THREE.ShadowMaterial({ opacity: 0.18 });
     const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
     shadowMesh.rotation.x = -Math.PI / 2;
-    shadowMesh.position.y = -1.1;
+    shadowMesh.position.y = -1.0;
     shadowMesh.receiveShadow = true;
     scene.add(shadowMesh);
 
     // Load GLB Model
     const loader = new GLTFLoader();
-    const modelUrl = `/models/${modelType}.glb`;
+    const isMobileDevice = window.innerWidth <= 640;
+    const modelUrl = `/models/${modelType}${isMobileDevice ? '.mobile' : ''}.glb`;
 
     setIsLoading(true);
 
@@ -125,9 +125,14 @@ export const JerseyMockup3D: React.FC<JerseyMockup3DProps> = ({
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             if (mesh.material) {
-              const mat = mesh.material as THREE.MeshStandardMaterial;
-              mat.roughness = 0.55;
-              mat.metalness = 0.05;
+              const mat = new THREE.MeshPhysicalMaterial({
+                roughness: 0.82,
+                metalness: 0.0,
+                sheen: 0.4,
+                sheenRoughness: 0.5,
+                side: THREE.DoubleSide,
+              });
+              mesh.material = mat;
             }
           }
         });
@@ -142,12 +147,12 @@ export const JerseyMockup3D: React.FC<JerseyMockup3DProps> = ({
       undefined,
       (err) => {
         console.warn('GLB Load fallback to procedural 3D mesh:', err);
-        // Procedural Fallback Mesh
         const jerseyGeo = new THREE.CylinderGeometry(0.52, 0.48, 1.5, 32, 16, true);
-        const jerseyMat = new THREE.MeshStandardMaterial({
+        const jerseyMat = new THREE.MeshPhysicalMaterial({
           color: 0x881337,
-          roughness: 0.6,
-          metalness: 0.05,
+          roughness: 0.82,
+          metalness: 0.0,
+          sheen: 0.4,
           side: THREE.DoubleSide,
         });
         const fallbackMesh = new THREE.Mesh(jerseyGeo, jerseyMat);
@@ -190,94 +195,30 @@ export const JerseyMockup3D: React.FC<JerseyMockup3DProps> = ({
     };
   }, [modelType]);
 
-  // 2. Render 2D SVG Texture and map to 3D Jersey Mesh
+  // 2. Render 2048x2048 UV Atlas Texture & Apply to 3D Jersey Panels
   useEffect(() => {
-    let isCancelled = false;
+    try {
+      const isMobileDevice = window.innerWidth <= 640;
+      const resolution = isMobileDevice ? 1024 : 2048;
+      const texture = createJerseyAtlasTexture(cfg, { resolution, dilationPadding: 16 });
 
-    const generateTexture = async () => {
-      try {
-        const offscreenContainer = document.createElement('div');
-        offscreenContainer.style.position = 'absolute';
-        offscreenContainer.style.left = '-9999px';
-        offscreenContainer.style.width = '1024px';
-        offscreenContainer.style.height = '1024px';
-        document.body.appendChild(offscreenContainer);
-
-        const root = createRoot(offscreenContainer);
-        root.render(
-          <JerseySVG2D
-            config={cfg}
-            idPrefix="texture-3d-"
-            className="w-full h-full"
-          />
-        );
-
-        await new Promise((r) => setTimeout(r, 120));
-
-        const svgElem = offscreenContainer.querySelector('svg');
-        if (!svgElem || isCancelled) {
-          root.unmount();
-          document.body.removeChild(offscreenContainer);
-          return;
-        }
-
-        svgElem.setAttribute('width', '1024');
-        svgElem.setAttribute('height', '1024');
-
-        const svgData = new XMLSerializer().serializeToString(svgElem);
-        const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
-          img.src = url;
-        });
-
-        const canvas = document.createElement('canvas');
-        canvas.width = 1024;
-        canvas.height = 1024;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, 1024, 1024);
-          const texture = new THREE.CanvasTexture(canvas);
-          texture.colorSpace = THREE.SRGBColorSpace;
-          texture.wrapS = THREE.RepeatWrapping;
-          texture.wrapT = THREE.RepeatWrapping;
-          texture.needsUpdate = true;
-
-          // Apply texture to 3D model
-          if (modelGroupRef.current) {
-            modelGroupRef.current.traverse((child) => {
-              if ((child as THREE.Mesh).isMesh) {
-                const mesh = child as THREE.Mesh;
-                if (mesh.material) {
-                  const mat = (mesh.material as THREE.MeshStandardMaterial).clone();
-                  mat.map = texture;
-                  mat.needsUpdate = true;
-                  mesh.material = mat;
-                }
-              }
-            });
+      if (modelGroupRef.current) {
+        modelGroupRef.current.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mesh = child as THREE.Mesh;
+            if (mesh.material) {
+              const mat = (mesh.material as THREE.MeshPhysicalMaterial).clone();
+              mat.map = texture;
+              mat.needsUpdate = true;
+              mesh.material = mat;
+            }
           }
-          textureRef.current = texture;
-        }
-
-        URL.revokeObjectURL(url);
-        root.unmount();
-        document.body.removeChild(offscreenContainer);
-      } catch (err) {
-        console.warn('3D Texture generation note:', err);
+        });
       }
-    };
-
-    generateTexture();
-
-    return () => {
-      isCancelled = true;
-    };
+      textureRef.current = texture;
+    } catch (err) {
+      console.warn('3D UV Atlas generation note:', err);
+    }
   }, [
     cfg.baseColor,
     cfg.secondaryColor,
@@ -286,7 +227,6 @@ export const JerseyMockup3D: React.FC<JerseyMockup3DProps> = ({
     cfg.playerName,
     cfg.playerNumber,
     cfg.sponsorText,
-    cfg.sponsorLogoUrl,
     cfg.collarStyle,
   ]);
 

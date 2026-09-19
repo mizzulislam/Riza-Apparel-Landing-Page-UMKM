@@ -1,0 +1,45 @@
+{
+  "$schema": "https://riza-apparel.web.app/schemas/pattern-spec.v1.json",
+  "name": "V-Neck Set-In Unisex Soccer Jersey Pattern",
+  "model_type": "vneck-setin",
+  "version": "1.0.0",
+  "units": "mm",
+  "placeholders": {
+    "lebar_dada": "[PLACEHOLDER — menunggu klien]",
+    "panjang_baju": "[PLACEHOLDER — menunggu klien]",
+    "lebar_bahu": "[PLACEHOLDER — menunggu klien]",
+    "panjang_lengan": "[PLACEHOLDER — menunggu klien]"
+  },
+  "default_measurements_mm": {
+    "lebar_dada": 520,
+    "panjang_baju": 720,
+    "lebar_bahu": 440,
+    "panjang_lengan": 220
+  },
+  "uv_atlas": {
+    "resolution_px": 2048,
+    "dilation_padding_px": 16,
+    "panels": {
+      "body_front": {
+        "uv_bounds": { "u_min": 0.02, "v_min": 0.02, "u_max": 0.48, "v_max": 0.65 },
+        "pixel_bounds_2048": { "x": 41, "y": 41, "w": 942, "h": 1290 }
+      },
+      "body_back": {
+        "uv_bounds": { "u_min": 0.52, "v_min": 0.02, "u_max": 0.98, "v_max": 0.65 },
+        "pixel_bounds_2048": { "x": 1065, "y": 41, "w": 942, "h": 1290 }
+      },
+      "sleeve_left": {
+        "uv_bounds": { "u_min": 0.02, "v_min": 0.68, "u_max": 0.45, "v_max": 0.88 },
+        "pixel_bounds_2048": { "x": 41, "y": 1392, "w": 881, "h": 410 }
+      },
+      "sleeve_right": {
+        "uv_bounds": { "u_min": 0.55, "v_min": 0.68, "u_max": 0.98, "v_max": 0.88 },
+        "pixel_bounds_2048": { "x": 1126, "y": 1392, "w": 881, "h": 410 }
+      },
+      "collar": {
+        "uv_bounds": { "u_min": 0.02, "v_min": 0.90, "u_max": 0.98, "v_max": 0.98 },
+        "pixel_bounds_2048": { "x": 41, "y": 1843, "w": 1966, "h": 164 }
+      }
+    }
+  }
+}

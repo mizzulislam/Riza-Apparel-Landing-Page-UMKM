@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riza Apparel 3D Jersey Inspection Harness (Tahap I0)</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    h1 {
+      font-size: 1.25rem;
+      color: #f59e0b;
+      margin-bottom: 5px;
+    }
+    p {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-top: 0;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    button, select {
+      background-color: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button.active {
+      background-color: #f59e0b;
+      color: #0f172a;
+      border-color: #f59e0b;
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+    .card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-col: column;
+      align-items: center;
+      padding: 10px;
+    }
+    .card h3 {
+      font-size: 0.8rem;
+      margin: 0 0 8px 0;
+      color: #e2e8f0;
+    }
+    canvas {
+      width: 100%;
+      height: 240px;
+      background-color: #090d16;
+      border-radius: 8px;
+    }
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>Riza Apparel — 3D Jersey Inspection Harness (Tahap I0)</h1>
+  <p>Render Inspeksi 8 Sudut (0°, 45°, 90°, 135°, 180°, 225°, 270°, 315°) | Skenario: (a) Current Design, (b) Texture Checker Grid, (c) Unlit Mode</p>
+
+  <div class="controls">
+    <label>Model: 
+      <select id="modelSelect">
+        <option value="/models/vneck-setin.glb">V-Neck Set-In (vneck-setin.glb)</option>
+        <option value="/models/raglan-crew.glb">Raglan Crew-Neck (raglan-crew.glb)</option>
+      </select>
+    </label>
+    <label>Mode Texture: 
+      <select id="modeSelect">
+        <option value="design">Design Current</option>
+        <option value="checker">Checkerboard Grid (UV Test)</option>
+        <option value="unlit">Unlit Mode (Parity Test)</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="grid-container" id="anglesGrid"></div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    const angles = [0, 45, 90, 135, 180, 225, 270, 315];
+    const grid = document.getElementById('anglesGrid');
+    const modelSelect = document.getElementById('modelSelect');
+    const modeSelect = document.getElementById('modeSelect');
+
+    // Create UV Checker Texture
+    function createCheckerTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      const size = 32;
+      for (let y = 0; y < 512; y += size) {
+        for (let x = 0; x < 512; x += size) {
+          ctx.fillStyle = ((x / size + y / size) % 2 === 0) ? '#38bdf8' : '#0284c7';
+          ctx.fillRect(x, y, size, size);
+        }
+      }
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '24px monospace';
+      ctx.fillText('UV ATLAS CHECKER', 140, 260);
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      return texture;
+    }
+
+    const checkerTexture = createCheckerTexture();
+
+    function renderHarness() {
+      grid.innerHTML = '';
+      const modelUrl = modelSelect.value;
+      const mode = modeSelect.value;
+
+      const loader = new GLTFLoader();
+      loader.load(modelUrl, (gltf) => {
+        angles.forEach((deg) => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `<h3>Angle ${deg}°</h3>`;
+          
+          const canvas = document.createElement('canvas');
+          card.appendChild(canvas);
+          grid.appendChild(card);
+
+          const scene = new THREE.Scene();
+          const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+          camera.position.set(0, 0, 3.0);
+
+          const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+          renderer.setSize(240, 240);
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+          if (mode !== 'unlit') {
+            const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+            scene.add(ambient);
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1.8);
+            mainLight.position.set(2, 3, 3);
+            scene.add(mainLight);
+            const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            fillLight.position.set(-2, 1, -2);
+            scene.add(fillLight);
+          }
+
+          const modelCopy = gltf.scene.clone();
+          modelCopy.rotation.y = (deg * Math.PI) / 180;
+          modelCopy.position.set(0, -0.05, 0);
+
+          modelCopy.traverse((child) => {
+            if (child.isMesh) {
+              if (mode === 'unlit') {
+                child.material = new THREE.MeshBasicMaterial({
+                  color: child.material.color || 0xffffff,
+                  side: THREE.DoubleSide
+                });
+              } else if (mode === 'checker') {
+                child.material = new THREE.MeshStandardMaterial({
+                  map: checkerTexture,
+                  roughness: 0.6,
+                  side: THREE.DoubleSide
+                });
+              } else {
+                child.material.side = THREE.DoubleSide;
+              }
+            }
+          });
+
+          scene.add(modelCopy);
+          renderer.render(scene, camera);
+        });
+      });
+    }
+
+    modelSelect.addEventListener('change', renderHarness);
+    modeSelect.addEventListener('change', renderHarness);
+    renderHarness();
+  </script>
+</body>
+</html>
