@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { ChatMessage } from '../types';
 
+import { sendAIChatMessage, getAIQuotaInfo, AIQuotaInfo } from '../lib/ai-client';
+
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: '1',
@@ -57,7 +59,15 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ isDark = f
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [quotaInfo, setQuotaInfo] = useState<AIQuotaInfo>(getAIQuotaInfo());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Refresh quota info when drawer opens
+  useEffect(() => {
+    if (isOpen) {
+      setQuotaInfo(getAIQuotaInfo());
+    }
+  }, [isOpen]);
 
   // Auto scroll to bottom of chat
   const scrollToBottom = () => {
@@ -70,7 +80,7 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ isDark = f
     }
   }, [messages, isOpen, isTyping]);
 
-  // Handle Knowledge Base Query Logic
+  // Handle Local Knowledge Base Query Logic (Fallback when offline/keyword matching)
   const processQuery = (userQuery: string) => {
     const query = userQuery.toLowerCase();
     let replyText = '';
@@ -129,7 +139,7 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ isDark = f
     return { replyText, options, isEscalation };
   };
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const messageText = textToSend || inputValue.trim();
     if (!messageText) return;
 
@@ -145,31 +155,42 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ isDark = f
     if (!textToSend) setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response latency (<400ms)
-    setTimeout(() => {
-      const { replyText, options, isEscalation } = processQuery(messageText);
-      const assistantMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: 'assistant',
-        text: replyText,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        options,
-        isEscalation,
-      };
+    // Call AI client proxy with circuit breaker & rate limit handling
+    const res = await sendAIChatMessage({ message: messageText });
+    setQuotaInfo(res.quotaInfo);
 
-      setMessages((prev) => [...prev, assistantMsg]);
-      setIsTyping(false);
+    let finalReply = res.replyText;
+    let finalOptions: { label: string; action: string }[] | undefined = undefined;
+    let isEscalated = false;
 
-      if (isEscalation) {
-        // Trigger auto escalation open after 1 second if explicitly requested
-        setTimeout(() => {
-          window.open(
-            'https://wa.me/6281246917740?text=Halo%20Admin%20Riza%20Apparel,%20saya%20ingin%20bertanya%20mengenai%20custom%20jersey...',
-            '_blank'
-          );
-        }, 1200);
-      }
-    }, 400);
+    if (res.isFallback || !finalReply) {
+      // Offline / fallback to knowledge base matching
+      const local = processQuery(messageText);
+      finalReply = local.replyText;
+      finalOptions = local.options;
+      isEscalated = local.isEscalation;
+    }
+
+    const assistantMsg: ChatMessage = {
+      id: (Date.now() + 1).toString(),
+      sender: 'assistant',
+      text: finalReply,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      options: finalOptions,
+      isEscalation: isEscalated || res.quotaInfo.status === 'quota_exceeded',
+    };
+
+    setMessages((prev) => [...prev, assistantMsg]);
+    setIsTyping(false);
+
+    if (isEscalated) {
+      setTimeout(() => {
+        window.open(
+          'https://wa.me/6281246917740?text=Halo%20Admin%20Riza%20Apparel,%20saya%20ingin%20bertanya%20mengenai%20custom%20jersey...',
+          '_blank'
+        );
+      }, 1200);
+    }
   };
 
   const handleOptionClick = (option: { label: string; action: string }) => {
@@ -226,20 +247,28 @@ export const AIAssistantWidget: React.FC<AIAssistantWidgetProps> = ({ isDark = f
             : 'bg-white/95 border-gray-200 text-gray-900'
         }`}>
           
-          {/* Drawer Header */}
+          {/* Drawer Header with Quota Circuit Breaker Indicator (FR-E4, FR-E5) */}
           <div className={`p-4 border-b flex items-center justify-between ${
             isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-slate-900 border-slate-800 text-white'
           }`}>
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-heritage-zawo p-0.5 shadow-md flex items-center justify-center">
                 <Bot className="w-5 h-5 text-white" />
-                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-slate-900 rounded-full" />
+                <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 border-2 border-slate-900 rounded-full ${
+                  quotaInfo.status === 'quota_exceeded' ? 'bg-rose-500' : quotaInfo.status === 'approaching_limit' ? 'bg-amber-400' : 'bg-emerald-400'
+                }`} />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
                   RIZA AI Assistant
-                  <span className="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-semibold border border-emerald-500/30">
-                    Online
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${
+                    quotaInfo.status === 'quota_exceeded'
+                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                      : quotaInfo.status === 'approaching_limit'
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                      : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                  }`}>
+                    {quotaInfo.status === 'quota_exceeded' ? 'Kuota AI Habis' : quotaInfo.status === 'approaching_limit' ? 'Hampir Batas' : 'Online'}
                   </span>
                 </h3>
                 <p className="text-[11px] text-slate-300">Knowledge Base Riza Apparel Ende</p>

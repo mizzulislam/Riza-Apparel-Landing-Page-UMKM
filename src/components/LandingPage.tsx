@@ -25,10 +25,18 @@ import {
   ChevronDown,
   PenTool,
   Menu,
+  Lock,
   X
 } from 'lucide-react';
 import { DesignStudio } from './DesignStudio';
 import { AIAssistantWidget } from './AIAssistantWidget';
+import { SEOStructuredData } from './SEOStructuredData';
+import { PriceEstimator } from './PriceEstimator';
+import { LeadCaptureModal } from './LeadCaptureModal';
+import { PrivacyPolicyModal } from './PrivacyPolicyModal';
+import { TermsModal } from './TermsModal';
+import { getCMSProducts } from '../lib/cms-service';
+import { trackStudioVisit, trackWhatsAppClick } from '../lib/analytics';
 import { CatalogItem, Testimonial } from '../types';
 
 const CATALOG_DATA: CatalogItem[] = [
@@ -291,11 +299,27 @@ const HERO_GALLERY_IMAGES = [
 ];
 
 
-export const LandingPage: React.FC = () => {
+interface LandingPageProps {
+  onNavigateAdmin?: () => void;
+  onNavigateTracking?: (token?: string) => void;
+}
+
+export const LandingPage: React.FC<LandingPageProps> = ({
+  onNavigateAdmin,
+  onNavigateTracking,
+}) => {
   const [activeCategory, setActiveCategory] = useState<'all' | 'team' | 'community' | 'casual'>('all');
   const [openFaqId, setOpenFaqId] = useState<string | null>('1');
   const [expandedCatalogIds, setExpandedCatalogIds] = useState<Record<string, boolean>>({});
   const [activeHeroIdx, setActiveHeroIdx] = useState(0);
+  const [cmsCatalog, setCmsCatalog] = useState<CatalogItem[]>(CATALOG_DATA);
+  
+  // Modal states
+  const [isLeadCaptureOpen, setIsLeadCaptureOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [leadSummaryText, setLeadSummaryText] = useState('');
+
   const [currentPage, setCurrentPage] = useState<'home' | 'studio'>(() => {
     if (typeof window !== 'undefined' && window.location.hash === '#studio') {
       return 'studio';
@@ -309,6 +333,15 @@ export const LandingPage: React.FC = () => {
     } catch (e) {}
     return 'dark';
   });
+
+  // Fetch CMS catalog if available
+  useEffect(() => {
+    getCMSProducts().then((prods) => {
+      if (prods && prods.length > 0) {
+        setCmsCatalog(prods);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     try {
@@ -335,8 +368,8 @@ export const LandingPage: React.FC = () => {
 
 
   const filteredCatalog = activeCategory === 'all' 
-    ? CATALOG_DATA 
-    : CATALOG_DATA.filter((item) => item.category === activeCategory);
+    ? cmsCatalog 
+    : cmsCatalog.filter((item) => item.category === activeCategory);
 
   const goToStudioPage = () => {
     setIsMobileMenuOpen(false);
@@ -719,9 +752,43 @@ export const LandingPage: React.FC = () => {
 
         </div>
 
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500 border-t border-slate-800/80">
           <p>© {new Date().getFullYear()} RIZA APPAREL Ende. Hak Cipta Dilindungi.</p>
-          <p>Designed with Pride in Ende, Nusa Tenggara Timur 🇮🇩</p>
+
+          <div className="flex items-center gap-4 flex-wrap text-slate-400">
+            <button
+              type="button"
+              onClick={() => onNavigateTracking ? onNavigateTracking() : (window.location.hash = '#status-pesanan')}
+              className="hover:text-brand-400 transition-colors"
+            >
+              Cek Status Pesanan
+            </button>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={() => setIsPrivacyOpen(true)}
+              className="hover:text-brand-400 transition-colors"
+            >
+              Kebijakan Privasi (PDP)
+            </button>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={() => setIsTermsOpen(true)}
+              className="hover:text-brand-400 transition-colors"
+            >
+              Ketentuan Penggunaan
+            </button>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={() => onNavigateAdmin ? onNavigateAdmin() : (window.location.hash = '#admin')}
+              className="hover:text-amber-400 transition-colors flex items-center gap-1 font-bold"
+            >
+              <Lock className="w-3 h-3 text-amber-400" />
+              <span>Portal Admin</span>
+            </button>
+          </div>
         </div>
 
       </div>
@@ -749,6 +816,7 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 flex flex-col font-sans ${isDark ? 'bg-[#0B0F19] text-white' : 'bg-slate-50 text-gray-900'}`}>
+      <SEOStructuredData />
       
       {renderHeader()}
 
@@ -1550,12 +1618,43 @@ export const LandingPage: React.FC = () => {
           </div>
         </section>
 
+        {/* SECTION 9.5: PRICE ESTIMATOR CALCULATOR (FR-B4, UC3) */}
+        <section className="py-12 relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <PriceEstimator
+            isDark={isDark}
+            onOpenLeadCapture={(summary) => {
+              setLeadSummaryText(summary);
+              setIsLeadCaptureOpen(true);
+            }}
+          />
+        </section>
+
       </main>
 
       {/* SECTION 10: FOOTER */}
       {renderFooter()}
 
       <AIAssistantWidget isDark={isDark} />
+
+      {/* MODALS FASE 2 */}
+      <LeadCaptureModal
+        isOpen={isLeadCaptureOpen}
+        onClose={() => setIsLeadCaptureOpen(false)}
+        designSummary={leadSummaryText}
+        isDark={isDark}
+      />
+
+      <PrivacyPolicyModal
+        isOpen={isPrivacyOpen}
+        onClose={() => setIsPrivacyOpen(false)}
+        isDark={isDark}
+      />
+
+      <TermsModal
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+        isDark={isDark}
+      />
 
     </div>
   );

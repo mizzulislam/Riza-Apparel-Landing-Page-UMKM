@@ -1,0 +1,7 @@
+# Robots.txt — Riza Apparel Ende (FR-A4)
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+
+Sitemap: https://rizaapparel-2026.web.app/sitemap.xml

@@ -16,14 +16,16 @@ import {
   Undo2,
   Redo2,
   Ruler,
-  FileText
+  FileText,
+  Printer
 } from 'lucide-react';
 import { DesignState, ViewAngleId, StudioModeId, MotifTemplateId, CollarStyleId } from '../types';
 import { JerseyCanvas2D } from './JerseyCanvas2D';
-import { JerseyCanvas3D } from './JerseyCanvas3D';
+const JerseyCanvas3D = React.lazy(() => import('./JerseyCanvas3D').then(m => ({ default: m.JerseyCanvas3D })));
 import { StudioSidebar } from './StudioSidebar';
 import { SizeChartModal } from './SizeChartModal';
 import { PrintGuidelinesModal } from './PrintGuidelinesModal';
+import { PrintExportModal } from './PrintExportModal';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -101,6 +103,7 @@ export const DesignStudio: React.FC<DesignStudioProps> = ({ isDark = true }) => 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
   const [isPrintGuidelinesOpen, setIsPrintGuidelinesOpen] = useState(false);
+  const [isPrintExportOpen, setIsPrintExportOpen] = useState(false);
 
   // Undo & Redo History Management
   const [history, setHistory] = useState<DesignState[]>([design]);
@@ -365,6 +368,20 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
               <span>Panduan Ukuran</span>
             </button>
 
+            {/* High-Res 150+ DPI Print Export Shortcut (FR-D1, FR-D4) */}
+            <button
+              type="button"
+              onClick={() => setIsPrintExportOpen(true)}
+              className={`flex items-center gap-2 border px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all min-h-[40px] shadow-sm ${
+                isDark 
+                  ? 'bg-gradient-to-r from-heritage-zawo to-amber-500 hover:from-amber-400 hover:to-amber-600 text-slate-950 border-amber-400' 
+                  : 'bg-heritage-zawo hover:bg-amber-500 text-slate-950 border-amber-500'
+              }`}
+            >
+              <Printer className="w-4 h-4" />
+              <span>Ekspor File Cetak (150+ DPI)</span>
+            </button>
+
             {/* Save & Reset Session */}
 
             <button
@@ -435,7 +452,14 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
                 {design.mode === '2d' ? (
                   <JerseyCanvas2D design={design} />
                 ) : (
-                  <JerseyCanvas3D design={design} />
+                  <React.Suspense fallback={
+                    <div className="flex flex-col items-center justify-center p-8 text-center space-y-3">
+                      <RefreshCw className="w-8 h-8 animate-spin text-brand-500" />
+                      <p className="text-xs font-bold text-slate-400">Memuat Engine 3D Orbit...</p>
+                    </div>
+                  }>
+                    <JerseyCanvas3D design={design} />
+                  </React.Suspense>
                 )}
               </div>
 
@@ -452,6 +476,19 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
                   <span>Format URL WhatsApp Resmi +6281246917740</span>
                 </div>
               </div>
+
+              {/* Cultural Heritage Attribution Box (R7 & FR-D3) */}
+              {(design.motifTemplate === 'ende-diamond' || design.motifTemplate === 'ende-zawo' || design.motifTemplate === 'flores-waves') && (
+                <div className="mt-3 p-3 rounded-2xl border border-heritage-zawo/40 bg-heritage-zawo/10 text-xs flex items-center gap-3">
+                  <Sparkles className="w-4 h-4 text-heritage-zawo shrink-0" />
+                  <div>
+                    <span className="font-extrabold text-heritage-zawo block">Atribusi Warisan Budaya Nusantara (NTT):</span>
+                    <span className="text-[11px] text-slate-300">
+                      Motif Tenun Ikat Zawo Ende-Lio & Gelombang Laut Flores diadaptasi sebagai apresiasi seni tradisional Flores, NTT (UU Hak Cipta & Kekayaan Intelektual Komunal).
+                    </span>
+                  </div>
+                </div>
+              )}
 
             </div>
 
@@ -504,7 +541,7 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
 
       </div>
 
-      {/* MODALS: SIZE CHART & PRINT GUIDELINES */}
+      {/* MODALS: SIZE CHART, PRINT GUIDELINES & PRINT EXPORT */}
       <SizeChartModal 
         isOpen={isSizeChartOpen} 
         onClose={() => setIsSizeChartOpen(false)} 
@@ -515,6 +552,13 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
         isOpen={isPrintGuidelinesOpen} 
         onClose={() => setIsPrintGuidelinesOpen(false)} 
         isDark={isDark} 
+      />
+
+      <PrintExportModal
+        isOpen={isPrintExportOpen}
+        onClose={() => setIsPrintExportOpen(false)}
+        design={design}
+        isDark={isDark}
       />
     </section>
   );

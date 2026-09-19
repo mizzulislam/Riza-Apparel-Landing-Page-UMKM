@@ -72,3 +72,7 @@ Thumbs.db
 .idea/
 .gemini/
 .agents/
+
+# Local Reference Assets (Must not be committed)
+docs/reference-local/vneck-referensi.png
+

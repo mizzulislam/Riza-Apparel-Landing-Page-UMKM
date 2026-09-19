@@ -1,12 +1,45 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // 1. Konten Publik CMS (Produk, Motif, Testimoni, FAQ) - Read Publik, Write Admin
+    match /products/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /motifs/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /testimonials/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // 2. CRM Leads Capture (PDP Privacy Rule: Public Create ONLY with explicit consent, Admin Read/Write)
+    match /leads/{leadId} {
+      allow create: if request.resource.data.nama is string &&
+                       request.resource.data.nomor_whatsapp is string &&
+                       request.resource.data.penerimaan_pdp == true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // 3. Pesanan Pelanggan & Token Unik Tracking
+    match /orders/{orderId} {
+      allow read: if true; // Public query allowed by unique token match
+      allow write, update, delete: if request.auth != null;
+    }
+
+    // 4. Log Pertanyaan Chatbot
+    match /unansweredQuestions/{id} {
+      allow create, update: if true;
+      allow read, delete: if request.auth != null;
+    }
+
+    // 5. Pesanan Konsultasi Custom Jersey (Legacy MVP)
     match /customOrders/{orderId} {
-      // Izinkan pengunjung membuat pesanan konsultasi custom jersey
       allow create: if request.resource.data.customerName is string &&
                        request.resource.data.whatsapp is string &&
                        request.resource.data.jerseyType is string;
-      // Membaca atau mengupdate hanya jika terotentikasi
       allow read, update, delete: if request.auth != null;
     }
   }

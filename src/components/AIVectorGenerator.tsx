@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { incrementAIUsage, getAIQuotaInfo } from '../lib/ai-client';
 import { 
   Sparkles, 
   Wand2, 
@@ -455,6 +456,9 @@ export const AIVectorGenerator: React.FC<AIVectorGeneratorProps> = ({
       : (preset ? preset.colorScheme : ['#881337', '#F59E0B', '#111827']);
 
     const resolvedColors = extractColorsFromPrompt(finalPrompt, baseColors);
+
+    // Track usage in quota controller
+    incrementAIUsage();
 
     setTimeout(() => {
       const svg = generateAccurateVectorSVG(finalPrompt, finalCategory, resolvedColors, detailLevel);
