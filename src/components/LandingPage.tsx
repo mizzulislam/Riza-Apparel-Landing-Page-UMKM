@@ -25,10 +25,12 @@ import {
   ChevronDown,
   PenTool,
   Menu,
-  X
+  X,
+  Cloud
 } from 'lucide-react';
 import { DesignStudio } from './DesignStudio';
 import { AIAssistantWidget } from './AIAssistantWidget';
+import { GoogleDriveModal } from './GoogleDriveModal';
 import { CatalogItem, Testimonial } from '../types';
 
 const CATALOG_DATA: CatalogItem[] = [
@@ -318,6 +320,7 @@ export const LandingPage: React.FC = () => {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [partnerSlideIdx, setPartnerSlideIdx] = useState(0);
+  const [isGoogleDriveOpen, setIsGoogleDriveOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -1277,7 +1280,7 @@ export const LandingPage: React.FC = () => {
                   <span className="truncate">Desain & Draf 2D</span>
                 </div>
                 <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
-                  Eksplorasi motif tenun ikat & warna di web, lalu kirimkan ringkasan draf ke WhatsApp admin.
+                  Eksplorasi motif tenun ikat & warna di web, simpan draf ke Google Drive, atau kirimkan ringkasan draf ke WhatsApp admin.
                 </p>
               </div>
 
@@ -1329,6 +1332,41 @@ export const LandingPage: React.FC = () => {
                 </p>
               </div>
 
+            </div>
+
+            {/* GOOGLE DRIVE WORKSPACE SECTION INTEGRATION CARD */}
+            <div className={`mt-8 p-6 sm:p-7 rounded-3xl border flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-all ${
+              isDark 
+                ? 'bg-gradient-to-r from-blue-950/40 via-slate-900 to-slate-900 border-blue-900/50' 
+                : 'bg-gradient-to-r from-blue-50/80 via-white to-slate-50 border-blue-200/90 shadow-sm'
+            }`}>
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center justify-center shrink-0 shadow-inner">
+                  <Cloud className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <h3 className={`text-base font-extrabold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                      Arsip Desain Tim di Google Drive
+                    </h3>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
+                      Cloud Sync
+                    </span>
+                  </div>
+                  <p className={`text-xs sm:text-sm leading-relaxed max-w-2xl ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+                    Sudah memiliki berkas desain atau ingin membuka kembali spesifikasi jersey yang pernah dibuat? Akses folder Google Drive pribadi Anda untuk memuat draf langsung ke Studio Desain atau mengunduh arsip spesifikasi teknis.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsGoogleDriveOpen(true)}
+                className="w-full md:w-auto px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-98 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md shrink-0 cursor-pointer min-h-[44px]"
+              >
+                <Cloud className="w-4 h-4 text-blue-200" />
+                <span>Buka Arsip Google Drive</span>
+              </button>
             </div>
 
           </div>
@@ -1556,6 +1594,17 @@ export const LandingPage: React.FC = () => {
       {renderFooter()}
 
       <AIAssistantWidget isDark={isDark} />
+
+      {/* GOOGLE DRIVE CLOUD MODAL */}
+      <GoogleDriveModal
+        isOpen={isGoogleDriveOpen}
+        onClose={() => setIsGoogleDriveOpen(false)}
+        onApplyDesign={() => {
+          setIsGoogleDriveOpen(false);
+          goToStudioPage();
+        }}
+        isDark={isDark}
+      />
 
     </div>
   );

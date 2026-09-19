@@ -16,7 +16,8 @@ import {
   Undo2,
   Redo2,
   Ruler,
-  FileText
+  FileText,
+  Cloud
 } from 'lucide-react';
 import { DesignState, ViewAngleId, StudioModeId, MotifTemplateId, CollarStyleId } from '../types';
 import { JerseyCanvas2D } from './JerseyCanvas2D';
@@ -24,6 +25,7 @@ import { JerseyCanvas3D } from './JerseyCanvas3D';
 import { StudioSidebar } from './StudioSidebar';
 import { SizeChartModal } from './SizeChartModal';
 import { PrintGuidelinesModal } from './PrintGuidelinesModal';
+import { GoogleDriveModal } from './GoogleDriveModal';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -101,6 +103,7 @@ export const DesignStudio: React.FC<DesignStudioProps> = ({ isDark = true }) => 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
   const [isPrintGuidelinesOpen, setIsPrintGuidelinesOpen] = useState(false);
+  const [isGoogleDriveOpen, setIsGoogleDriveOpen] = useState(false);
 
   // Undo & Redo History Management
   const [history, setHistory] = useState<DesignState[]>([design]);
@@ -378,6 +381,21 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
               <span>{savedSuccess ? 'Tersimpan!' : 'Simpan Draf'}</span>
             </button>
 
+            {/* Google Drive Workspace Sync */}
+            <button
+              type="button"
+              onClick={() => setIsGoogleDriveOpen(true)}
+              className={`flex items-center gap-2 border px-3.5 py-2 rounded-xl text-xs font-bold transition-all min-h-[40px] ${
+                isDark 
+                  ? 'bg-blue-950/40 hover:bg-blue-900/60 border-blue-800/60 text-blue-300' 
+                  : 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 shadow-xs'
+              }`}
+              title="Buka atau Simpan Desain ke Google Drive"
+            >
+              <Cloud className="w-4 h-4 text-blue-400" />
+              <span>Google Drive</span>
+            </button>
+
             <button
               type="button"
               onClick={handleReset}
@@ -515,6 +533,18 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
         isOpen={isPrintGuidelinesOpen} 
         onClose={() => setIsPrintGuidelinesOpen(false)} 
         isDark={isDark} 
+      />
+
+      {/* GOOGLE DRIVE INTEGRATION MODAL */}
+      <GoogleDriveModal
+        isOpen={isGoogleDriveOpen}
+        onClose={() => setIsGoogleDriveOpen(false)}
+        currentDesign={design}
+        onApplyDesign={(newDesign) => {
+          handleUpdateDesign(newDesign);
+          setIsGoogleDriveOpen(false);
+        }}
+        isDark={isDark}
       />
     </section>
   );

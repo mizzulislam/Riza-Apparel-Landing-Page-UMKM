@@ -67,6 +67,7 @@ build/
 *.local
 
 # System & IDE files
+.firebase/
 .DS_Store
 Thumbs.db
 .idea/
