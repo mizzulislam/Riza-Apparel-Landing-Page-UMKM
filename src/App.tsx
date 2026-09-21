@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './lib/firebase';
-import { LandingPage } from './components/LandingPage';
+import { LandingPage } from './components/landing/LandingPage';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminPortal } from './components/admin/AdminPortal';
-import { OrderStatusTracker } from './components/OrderStatusTracker';
+import { OrderStatusTracker } from './components/landing/OrderStatusTracker';
 
 export const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);

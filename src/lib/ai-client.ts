@@ -96,7 +96,7 @@ export const incrementAIUsage = (): AIQuotaInfo => {
 };
 
 // Paksa status kuota habis jika API mengembalikan HTTP 429
-export const setAIQuotaExceeded = (): AIQuotaInfo => {
+const setAIQuotaExceeded = (): AIQuotaInfo => {
   try {
     localStorage.setItem(STORAGE_KEY_USAGE, MAX_DAILY_QUOTA.toString());
   } catch (e) {}

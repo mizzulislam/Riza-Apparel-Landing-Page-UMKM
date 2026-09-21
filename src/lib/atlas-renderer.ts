@@ -12,7 +12,7 @@ export interface AtlasOptions {
   dilationPadding?: number;
 }
 
-export function renderJerseyAtlasCanvas(
+function renderJerseyAtlasCanvas(
   config: DesignConfig | DesignState,
   options: AtlasOptions = {}
 ): HTMLCanvasElement {

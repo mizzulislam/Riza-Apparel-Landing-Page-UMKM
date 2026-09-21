@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { DesignState, ViewAngleId } from '../types';
-import { JerseySVG2D } from '../components/JerseySVG2D';
+import { JerseySVG2D } from '../components/studio/JerseySVG2D';
 
 /**
  * PrintExporter Utility

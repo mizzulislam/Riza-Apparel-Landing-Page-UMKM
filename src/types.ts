@@ -222,12 +222,18 @@ export interface CatalogItem {
   name: string;
   category: 'team' | 'community' | 'casual';
   startingPrice: number;
+  priceUnit?: string; // e.g. 'pcs', 'set', 'lusin'
+  secondaryPrice?: number; // Harga Ke-2 (e.g. Harga Grosir/Tim)
+  secondaryPriceUnit?: string; // Satuan harga ke-2 (e.g. 'pcs (grosir)', 'lusin', 'paket')
+  secondaryPriceLabel?: string; // Label harga ke-2 (e.g. 'Grosir Tim >= 12 pcs')
+  minOrderBadge?: string; // e.g. 'Bisa Satuan (1 Pcs)', 'Minimal Pemesanan 6 Pcs'
   promoBadge?: string;
   description: string;
   features: string[];
   fabricSpecs: string;
   leadTimeDays: number;
   imageUrl: string;
+  isActive?: boolean;
 }
 
 export interface ChatMessage {
