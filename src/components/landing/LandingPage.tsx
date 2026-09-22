@@ -412,6 +412,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     try {
       localStorage.setItem('riza_apparel_theme_mode', themeMode);
     } catch (e) {}
+    if (themeMode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [themeMode]);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

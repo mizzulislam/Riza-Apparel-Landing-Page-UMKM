@@ -572,10 +572,10 @@ export const CanvaColorPicker: React.FC<CanvaColorPickerProps> = ({
       {/* 2. TARGET ELEMENT SELECTOR PILLS (Sleek Segmented Control with Live Color Preview Dots) */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between px-0.5">
-          <span className={`text-[10px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+          <span className={`text-[10px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
             Bagian Jersey:
           </span>
-          <span className="text-[11px] font-extrabold text-brand-600 dark:text-brand-400 flex items-center gap-1.5">
+          <span className={`text-[11px] font-extrabold flex items-center gap-1.5 ${isDark ? 'text-brand-400' : 'text-brand-700'}`}>
             <span
               className="w-2.5 h-2.5 rounded-full inline-block border border-black/15 shadow-2xs"
               style={{ backgroundColor: currentTargetColor }}
@@ -596,10 +596,12 @@ export const CanvaColorPicker: React.FC<CanvaColorPickerProps> = ({
                 onClick={() => setActiveTarget(t)}
                 className={`py-1.5 px-1 rounded-lg text-[10px] font-bold transition-all text-center flex flex-col sm:flex-row items-center justify-center gap-1 truncate cursor-pointer ${
                   isSelected
-                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200/90 dark:border-slate-700'
+                    ? isDark
+                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200/90 dark:border-slate-700'
+                      : 'bg-white text-slate-900 shadow-sm border border-slate-300'
                     : isDark
                       ? 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+                      : 'text-slate-700 hover:text-slate-900 hover:bg-white/70'
                 }`}
               >
                 <span
@@ -670,10 +672,10 @@ export const CanvaColorPicker: React.FC<CanvaColorPickerProps> = ({
         isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-200/90'
       }`}>
         <div className="flex items-center justify-between mb-2.5">
-          <span className={`text-xs font-extrabold ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
+          <span className={`text-xs font-extrabold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
             {targetMeta[activeTarget].iconLabel}
           </span>
-          <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+          <span className={`text-[10px] font-bold ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
             Klik (+) untuk Spectrum Figma
           </span>
         </div>
@@ -867,7 +869,7 @@ export const CanvaColorPicker: React.FC<CanvaColorPickerProps> = ({
       <div className="space-y-1.5 pt-1">
         <div className="flex items-center gap-1.5">
           <Layers className="w-3.5 h-3.5 text-brand-500" />
-          <span className={`text-xs font-bold block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+          <span className={`text-xs font-extrabold block ${isDark ? 'text-slate-300' : 'text-slate-900'}`}>
             Colors in this design
           </span>
         </div>
@@ -886,16 +888,18 @@ export const CanvaColorPicker: React.FC<CanvaColorPickerProps> = ({
       </div>
 
       {/* 6. "BRAND KIT (RIZA APPAREL)" */}
-      <div className="space-y-1.5 pt-2 border-t border-slate-200/80 dark:border-slate-800">
+      <div className={`space-y-1.5 pt-2 border-t ${isDark ? 'border-slate-800' : 'border-slate-200/80'}`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
+          <div className={`flex items-center gap-1.5 text-xs font-extrabold ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
             <Bookmark className="w-3.5 h-3.5 text-brand-500" />
             <span>Brand Kit (RIZA APPAREL)</span>
           </div>
           <button
             type="button"
             onClick={() => setShowBrandKit(!showBrandKit)}
-            className="text-[11px] font-semibold text-brand-600 dark:text-brand-400 hover:underline cursor-pointer"
+            className={`text-[11px] font-extrabold hover:underline cursor-pointer ${
+              isDark ? 'text-brand-400' : 'text-brand-700'
+            }`}
           >
             {showBrandKit ? 'Sembunyikan' : 'Lihat Kit'}
           </button>
@@ -918,8 +922,8 @@ export const CanvaColorPicker: React.FC<CanvaColorPickerProps> = ({
       </div>
 
       {/* 7. "PHOTO COLORS" (Google Certificates & EKRAF, Exact Same Size Swatches, No Clipping) */}
-      <div className="space-y-2.5 pt-2 border-t border-slate-200/80 dark:border-slate-800">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
+      <div className={`space-y-2.5 pt-2 border-t ${isDark ? 'border-slate-800' : 'border-slate-200/80'}`}>
+        <div className={`flex items-center gap-1.5 text-xs font-extrabold ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
           <ImageIcon className="w-3.5 h-3.5 text-brand-500" />
           <span>Photo colors</span>
         </div>
@@ -1007,16 +1011,18 @@ export const CanvaColorPicker: React.FC<CanvaColorPickerProps> = ({
       </div>
 
       {/* 8. "DEFAULT SOLID COLORS" (7-Columns Grid, Perfectly Sized 32px Swatches) */}
-      <div className="space-y-2 pt-2 border-t border-slate-200/80 dark:border-slate-800">
+      <div className={`space-y-2 pt-2 border-t ${isDark ? 'border-slate-800' : 'border-slate-200/80'}`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
+          <div className={`flex items-center gap-1.5 text-xs font-extrabold ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
             <Palette className="w-3.5 h-3.5 text-brand-500" />
             <span>Default solid colors</span>
           </div>
           <button
             type="button"
             onClick={() => setSeeAllSolids(!seeAllSolids)}
-            className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-brand-600 transition-colors cursor-pointer"
+            className={`text-xs font-extrabold transition-colors cursor-pointer ${
+              isDark ? 'text-slate-400 hover:text-brand-400' : 'text-slate-700 hover:text-brand-700'
+            }`}
           >
             {seeAllSolids ? 'Show less' : 'See all'}
           </button>
@@ -1044,7 +1050,9 @@ export const CanvaColorPicker: React.FC<CanvaColorPickerProps> = ({
           {/* Expanded Rows when "See all" is clicked */}
           {seeAllSolids && (
             <div className="space-y-2.5 pt-2 animate-fadeIn border-t border-dashed border-slate-300 dark:border-slate-800">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600 block">
+              <span className={`text-[10px] font-extrabold uppercase tracking-wider block ${
+                isDark ? 'text-brand-400' : 'text-brand-700'
+              }`}>
                 Flores Heritage, Neons & Athletic Pastels:
               </span>
               {EXPANDED_SOLID_COLORS.map((row, rowIdx) => (
@@ -1102,10 +1110,10 @@ export const CanvaColorPicker: React.FC<CanvaColorPickerProps> = ({
                         : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
-                  <span className={`text-xs font-bold block ${isSelected ? 'text-brand-600 dark:text-brand-400' : isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <span className={`text-xs font-bold block ${isSelected ? (isDark ? 'text-brand-400' : 'text-brand-700') : (isDark ? 'text-white' : 'text-slate-900')}`}>
                     {c.name}
                   </span>
-                  <span className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">{c.desc}</span>
+                  <span className={`text-[10px] line-clamp-1 mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-700 font-medium'}`}>{c.desc}</span>
                 </button>
               );
             })}

@@ -264,7 +264,7 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
           <h2 className={`text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
             Studio Desain <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 via-heritage-zawo to-rose-500">2D & 3D Interactive</span>
           </h2>
-          <p className={`mt-2.5 text-sm sm:text-base ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+          <p className={`mt-2.5 text-sm sm:text-base ${isDark ? 'text-slate-300' : 'text-slate-700 font-medium'}`}>
             Rancang jersey Drifit Milano tim Anda secara leluasa. Beralih instan antara mode kanvas vektor 2D presisi dan simulasi orbit 3D 360° interaktif.
           </p>
         </div>
@@ -448,7 +448,7 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
               
               {/* CITITEX BENCHMARK MULTI-ANGLE SWITCHER THUMBNAILS (Front, Back, Left Sleeve, Right Sleeve) */}
               <div className={`w-full flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b ${isDark ? 'border-slate-700/60' : 'border-gray-200'}`}>
-                <span className={`text-xs uppercase font-bold tracking-widest ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Angle Pandang:</span>
+                <span className={`text-xs uppercase font-extrabold tracking-widest ${isDark ? 'text-slate-400' : 'text-slate-800'}`}>Angle Pandang:</span>
                 
                 <div className="flex items-center gap-1.5">
                   {[
@@ -510,12 +510,12 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
                 <div className={`mt-3 p-3 rounded-2xl border text-xs flex items-center gap-3 transition-colors ${
                   isDark 
                     ? 'border-heritage-zawo/40 bg-heritage-zawo/10 text-slate-300' 
-                    : 'border-amber-400/80 bg-amber-50/90 text-amber-950 font-medium shadow-2xs'
+                    : 'border-amber-400 bg-amber-50 text-amber-950 font-medium shadow-2xs'
                 }`}>
-                  <Sparkles className={`w-4 h-4 shrink-0 ${isDark ? 'text-heritage-zawo' : 'text-amber-600'}`} />
+                  <Sparkles className={`w-4 h-4 shrink-0 ${isDark ? 'text-heritage-zawo' : 'text-amber-700'}`} />
                   <div>
-                    <span className={`font-extrabold block ${isDark ? 'text-heritage-zawo' : 'text-amber-900'}`}>Atribusi Warisan Budaya Nusantara (NTT):</span>
-                    <span className={`text-[11px] leading-relaxed ${isDark ? 'text-slate-300' : 'text-amber-950 font-semibold'}`}>
+                    <span className={`font-black block ${isDark ? 'text-heritage-zawo' : 'text-amber-950'}`}>Atribusi Warisan Budaya Nusantara (NTT):</span>
+                    <span className={`text-[11px] leading-relaxed ${isDark ? 'text-slate-300' : 'text-amber-950 font-bold'}`}>
                       Motif Tenun Ikat Zawo Ende-Lio & Gelombang Laut Flores diadaptasi sebagai apresiasi seni tradisional Flores, NTT (UU Hak Cipta & Kekayaan Intelektual Komunal).
                     </span>
                   </div>
@@ -538,7 +538,7 @@ Mohon bantuan pengecekan slot produksi dan validasi file cetak sublimasi. Terima
                   <h4 className={`text-xs sm:text-sm font-extrabold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     Sudah Puas dengan Desain Anda?
                   </h4>
-                  <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-700 font-medium'}`}>
+                  <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-800 font-semibold'}`}>
                     Kirim langsung konfigurasi ke admin WhatsApp RIZA APPAREL untuk validasi file cetak & slot produksi.
                   </p>
                 </div>

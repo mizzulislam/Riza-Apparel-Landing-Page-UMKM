@@ -502,11 +502,13 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
         {activeTab === 'template' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-brand-500 flex items-center gap-1.5">
+              <h3 className={`text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 ${
+                isDark ? 'text-brand-400' : 'text-brand-700'
+              }`}>
                 <Sparkles className="w-4 h-4" />
                 <span>Pilih Pola & Template Jersey</span>
               </h3>
-              <span className={`text-[11px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+              <span className={`text-[11px] font-bold ${isDark ? 'text-slate-400' : 'text-slate-700'}`}>
                 11 Pilihan Desain
               </span>
             </div>
@@ -524,7 +526,7 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-600 text-white font-bold">PNG / JPG</span>
               </div>
-              <p className={`text-[11px] mb-3 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+              <p className={`text-[11px] mb-3 ${isDark ? 'text-slate-400' : 'text-slate-700 font-medium'}`}>
                 Unggah gambar motif tenun, abstrak, atau tekstur kustom Anda untuk disublimasikan pada kanvas jersey.
               </p>
               <div className="flex items-center gap-2">
@@ -633,7 +635,9 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
         {/* 3. TAB: TYPOGRAPHY & NUMBER */}
         {activeTab === 'typography' && (
           <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-brand-500 flex items-center gap-1.5">
+            <h3 className={`text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 ${
+              isDark ? 'text-brand-400' : 'text-brand-700'
+            }`}>
               <Type className="w-4 h-4" />
               <span>Personalisasi Nama, Nomor & Font</span>
             </h3>
@@ -681,7 +685,9 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
                 <button
                   type="button"
                   onClick={() => localFontInputRef.current?.click()}
-                  className="text-[10px] font-bold text-brand-500 hover:text-brand-400 flex items-center gap-1 transition-colors"
+                  className={`text-[10px] font-extrabold flex items-center gap-1 transition-colors ${
+                    isDark ? 'text-brand-400 hover:text-brand-300' : 'text-brand-700 hover:text-brand-800'
+                  }`}
                 >
                   <FolderOpen className="w-3 h-3" />
                   <span>+ Upload Font Lokal (.ttf/.otf)</span>
@@ -1012,7 +1018,9 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
         {/* 7. TAB: SPONSOR & LOGO */}
         {activeTab === 'sponsor' && (
           <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-brand-500 flex items-center gap-1.5">
+            <h3 className={`text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 ${
+              isDark ? 'text-brand-400' : 'text-brand-700'
+            }`}>
               <ImageIcon className="w-4 h-4" />
               <span>Logo Sponsor & Aksen Apparel</span>
             </h3>
@@ -1164,7 +1172,9 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
         {/* 8. TAB: REFERENCE MEDIA & PRINT GUIDELINES */}
         {activeTab === 'reference' && (
           <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-brand-500 flex items-center gap-1.5">
+            <h3 className={`text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 ${
+              isDark ? 'text-brand-400' : 'text-brand-700'
+            }`}>
               <Upload className="w-4 h-4" />
               <span>Media Referensi & Persyaratan File Cetak</span>
             </h3>
@@ -1266,14 +1276,16 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
         {activeTab === 'layers' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-brand-500 flex items-center gap-1.5">
+              <h3 className={`text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 ${
+                isDark ? 'text-brand-400' : 'text-brand-700'
+              }`}>
                 <Layers className="w-4 h-4" />
                 <span>Manajemen Layer & Urutan Tampilan</span>
               </h3>
               <button
                 type="button"
                 onClick={() => onUpdateDesign({ layers: DEFAULT_LAYERS })}
-                className={`text-[11px] flex items-center gap-1 ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+                className={`text-[11px] font-bold flex items-center gap-1 ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-700 hover:text-slate-900'}`}
                 title="Reset ke urutan bawaan"
               >
                 <RotateCcw className="w-3 h-3" />
